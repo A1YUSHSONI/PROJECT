@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Performance Predictor</title>
+    <style>
+        :root {
+            --bg-color: #f3f4f6;
+            --card-bg: #ffffff;
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --text-main: #1f2937;
+            --text-muted: #6b7280;
+            --border: #e5e7eb;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, sans-serif; }
+        body { background-color: var(--bg-color); color: var(--text-main); min-height: 100vh; padding: 20px; display: flex; justify-content: center; align-items: center; }
+        
+        .dashboard { background: var(--card-bg); width: 100%; max-width: 950px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); border: 1px solid var(--border); overflow: hidden; display: grid; grid-template-columns: 1.3fr 1fr; }
+        @media (max-width: 768px) { .dashboard { grid-template-columns: 1fr; } }
+
+        .input-side { padding: 40px; border-right: 1px solid var(--border); }
+        .result-side { padding: 40px; background: #fafafa; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
+
+        h1 { font-size: 24px; font-weight: 700; margin-bottom: 8px; color: #111827; }
+        .subtitle { font-size: 13px; color: var(--text-muted); margin-bottom: 30px; line-height: 1.5; }
+        h2 { font-size: 18px; font-weight: 600; margin-bottom: 20px; color: var(--text-main); }
+
+        .grid-inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 35px; }
+        @media (max-width: 480px) { .grid-inputs { grid-template-columns: 1fr; } }
+
+        .input-group { display: flex; flex-direction: column; }
+        .label-row { display: flex; justify-content: space-between; font-size: 13px; font-weight: 500; margin-bottom: 8px; color: #374151; }
+        .val-badge { color: var(--primary); font-weight: 600; background: #eeebff; padding: 2px 8px; border-radius: 6px; font-size: 11px; }
+
+        input[type="range"] { -webkit-appearance: none; width: 100%; height: 6px; background: #e5e7eb; border-radius: 5px; outline: none; }
+        input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 16px; height: 16px; border-radius: 50%; background: var(--primary); cursor: pointer; border: 2px solid #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.2); transition: transform 0.1s; }
+        input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.2); }
+
+        select { width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 10px; background: #f9fafb; font-size: 13px; color: var(--text-main); outline: none; transition: border 0.2s; }
+        select:focus { border-color: var(--primary); }
+
+        .btn-submit { grid-column: span 2; width: 100%; background: linear-gradient(135deg, #4f46e5, #6366f1); color: white; border: none; padding: 14px; border-radius: 12px; font-size: 14px; font-weight: 600; cursor: pointer; box-shadow: 0 4px 12px rgba(79, 70, 229, 0.2); transition: all 0.2s; margin-top: 10px; }
+        .btn-submit:hover { transform: translateY(-1px); box-shadow: 0 6px 15px rgba(79, 70, 229, 0.3); }
+
+        .score-box { background: linear-gradient(135deg, #f5f3ff, #ede9fe); border: 1px solid #ddd6fe; border-radius: 16px; padding: 30px; width: 100%; max-width: 240px; margin-bottom: 20px; }
+        .score-title { font-size: 11px; text-transform: uppercase; tracking: 1px; font-weight: 600; color: #6d28d9; margin-bottom: 5px; }
+        .score-num { font-size: 56px; font-weight: 800; color: #1e1b4b; }
+        .score-total { font-size: 20px; color: #9333ea; font-weight: 400; }
+        .no-data { font-size: 13px; color: var(--text-muted); font-style: italic; }
+    </style>
+</head>
+<body>
+
+    <div class="dashboard">
+        <!-- Input Form Block -->
+        <div class="input-side">
+            <h1>Student Performance Predictor</h1>
+            <p class="subtitle">Enter metrics below to forecast accurate final exam outcomes using advanced analytics.</p>
+            
+            <form action="/predict" method="POST" class="grid-inputs">
+                <div class="input-group">
+                    <div class="label-row"><span>Hours Studied / Week</span><span class="val-badge" id="l-hours">15</span></div>
+                    <input type="range" name="Hours_Studied" min="0" max="50" value="15" oninput="document.getElementById('l-hours').innerText = this.value">
+                </div>
+
+                <div class="input-group">
+                    <div class="label-row"><span>Attendance (%)</span><span class="val-badge" id="l-attend">75%</span></div>
+                    <input type="range" name="Attendance" min="0" max="100" value="75" oninput="document.getElementById('l-attend').innerText = this.value + '%'">
+                </div>
+
+                <div class="input-group">
+                    <div class="label-row"><span>Previous Exam Score</span><span class="val-badge" id="l-prev">65</span></div>
+                    <input type="range" name="Previous_Score" min="0" max="100" value="65" oninput="document.getElementById('l-prev').innerText = this.value">
+                </div>
+
+                <div class="input-group">
+                    <div class="label-row"><span>Sleep / Day (Hrs)</span><span class="val-badge" id="l-sleep">7</span></div>
+                    <input type="range" name="Sleep_Hours" min="4" max="12" value="7" oninput="document.getElementById('l-sleep').innerText = this.value">
+                </div>
+
+                <div class="input-group">
+                    <div class="label-row"><span>Tutoring / Month</span><span class="val-badge" id="l-tutor">1</span></div>
+                    <input type="range" name="Tutoring_Sessions" min="0" max="10" value="1" oninput="document.getElementById('l-tutor').innerText = this.value">
+                </div>
+
+                <div class="input-group">
+                    <label class="label-row"><span>Motivation Level</span></label>
+                    <select name="Motivation_Level">
+                        <option value="Low">Low</option>
+                        <option value="Medium" selected>Medium</option>
+                        <option value="High">High</option>
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <label class="label-row"><span>Extracurriculars</span></label>
+                    <select name="Extracurricular_Activities">
+                        <option value="No" selected>No</option>
+                        <option value="Yes">Yes</option>
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <label class="label-row"><span>Internet Access</span></label>
+                    <select name="Internet_Access">
+                        <option value="No">No</option>
+                        <option value="Yes" selected>Yes</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn-submit">Run AI Prediction</button>
+            </form>
+        </div>
+
+        <!-- Output Analytics Block -->
+        <div class="result-side">
+            <h2>Prediction Output</h2>
+            <div class="score-box">
+                <p class="score-title">Estimated Score</p>
+                {% if prediction %}
+                    <div class="score-num">{{ prediction }}<span class="score-total">/100</span></div>
+                {% else %}
+                    <p class="no-data">Waiting for input metrics...</p>
+                {% endif %}
+            </div>
+            <p style="font-size: 11px; color: var(--text-muted)">Powered by Random Forest Model</p>
+        </div>
+    </div>
+
+</body>
+</html>
